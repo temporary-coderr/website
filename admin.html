@@ -1,71 +1,31 @@
+
+
 <!DOCTYPE html>
-<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin - GitHub Version</title>
-<style>body{background:#0f1115;color:#fff;padding:20px;font-family:system-ui}input,textarea{width:100%;padding:12px;margin:6px 0;background:#1c202a;border:1px solid #333;color:#fff;border-radius:8px}button{padding:12px;border:0;border-radius:8px;font-weight:700;cursor:pointer}a{color:#4f7cff}</style>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Admin</title>
+<style>body{background:#111;color:#fff;font-family:system-ui;padding:20px}input{width:100%;padding:12px;margin:6px 0;background:#222;border:1px solid #444;color:#fff;border-radius:6px}button{padding:12px;background:#4f7cff;color:#fff;border:0;border-radius:6px;width:100%;font-weight:700}</style>
 </head><body>
-<div style="display:flex;justify-content:space-between"><h2>Admin Panel (GitHub Ready)</h2><a href="index.html" style="background:#25D366;color:#fff;padding:8px 14px;border-radius:20px;text-decoration:none">View Site</a></div>
-<div id="loginBox" style="max-width:320px;margin:60px auto;text-align:center">
-<h3>Login</h3>
-<input id="pass" type="password" placeholder="Password: admin123">
-<button onclick="login()" style="background:#4f7cff;color:#fff;width:100%;margin-top:10px">Login</button>
-<p style="font-size:12px;color:#888;margin-top:10px">OLD BIN still works: 6161fabf116efcde0e19<br>Contains Miles product</p>
-</div>
-<div id="panel" style="display:none;max-width:600px;margin:auto">
-<p id="status" style="color:#25D366"></p>
-<input id="img" placeholder="Image Link (postimg.cc direct link)" value="https://i.postimg.cc/PxJsx18N/miles-morales-5120x2880-24345.png">
-<input id="name" placeholder="Name" value="Miles Morales">
-<input id="code" placeholder="Code - M001">
+<h2>Admin - Direct Post (GitHub Pages)</h2>
+<input id="img" placeholder="Image link https://...">
+<input id="name" placeholder="Name">
+<input id="code" placeholder="Code">
 <input id="price" placeholder="Price">
-<textarea id="desc" placeholder="Desc"></textarea>
-<button onclick="addProduct()" style="background:#4f7cff;color:#fff;width:100%;margin-top:10px">➕ POST to Netlify Function</button>
-<button onclick="logout()" style="background:#333;color:#fff;width:100%;margin-top:8px">Logout</button>
-<div id="list" style="margin-top:20px"></div>
-<hr style="margin:20px 0;border:1px solid #222">
-<h4>For GitHub Gist version - set your Gist ID and Token here</h4>
-<input id="gistId" placeholder="Gist ID">
-<input id="ghToken" placeholder="GitHub Token ghp_...">
-<button onclick="postToGithub()" style="background:#fff;color:#000;width:100%;margin-top:8px">Post to GitHub Gist (Permanent)</button>
-</div>
+<input id="desc" placeholder="Desc">
+<button id="btn" onclick="post()">POST NOW</button>
+<p id="s"></p>
 <script>
-const BIN_URL="https://api.npoint.io/6161fabf116efcde0e19";
-let products=[];
-function login(){if(pass.value==='admin123'){localStorage.setItem('isAdmin','1');loginBox.style.display='none';panel.style.display='block';loadProducts();}else alert('Wrong')}
-function logout(){localStorage.removeItem('isAdmin');location.reload()}
-if(localStorage.getItem('isAdmin')){loginBox.style.display='none';panel.style.display='block';loadProducts();}
-async function loadProducts(){
- status.innerText='Loading...';
+const BIN="https://api.npoint.io/6161fabf116efcde0e19";
+let data=[];
+async function load(){let r=await fetch(BIN+"?t="+Date.now(),{cache:"no-store"});data=await r.json();s.innerText=data.length+" loaded - old bin works";}
+load();
+async function post(){
+ btn.innerText="Posting...";
+ let o={img:img.value,name:name.value,code:code.value,price:price.value,desc:desc.value};
+ data.unshift(o);
  try{
-  const r=await fetch(BIN_URL+"?t="+Date.now(),{cache:"no-store"});
-  products=await r.json();
-  status.innerText=products.length+' products loaded (old bin with links)';
-  render();
- }catch(e){status.innerText='Load fail '+e}
-}
-function render(){list.innerHTML=products.map((p,i)=>`<div style="background:#1c202a;padding:8px;margin-top:8px;border-radius:8px;display:flex;gap:8px;align-items:center"><img src="${p.img}" style="width:40px;height:40px;object-fit:cover"><div style="flex:1"><b>${p.name}</b><br><small>${p.code} - ${p.price}</small></div><button onclick="del(${i})" style="background:#e5484d;color:#fff">Del</button></div>`).join('')}
-async function addProduct(){
- let o={img:img.value.trim(),name:name.value.trim(),code:code.value.trim(),price:price.value.trim(),desc:desc.value.trim()};
- if(!o.img||!o.name) return alert('img+name needed');
- products.unshift(o);
- status.innerText='Posting via Netlify Function...';
- try{
-  let res=await fetch("/.netlify/functions/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(products)});
-  if(res.ok){status.innerText='✅ Posted! Same bin address updated';render();} else throw new Error(await res.text());
- }catch(e){
-  status.innerText='Netlify function not found (local test). Use manual method: fetch to npoint - see README. Error: '+e;
-  // fallback direct (works on GitHub Pages)
-  try{
-   let r2=await fetch(BIN_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(products)});
-   status.innerText='✅ Posted direct to npoint (works on GitHub Pages): '+r2.status;
-   render();
-  }catch(e2){status.innerText='Fail '+e2}
- }
-}
-async function del(i){products.splice(i,1);await fetch("/.netlify/functions/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(products)}).catch(()=>fetch(BIN_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(products)}));render();}
-async function postToGithub(){
- let id=gistId.value.trim(); let token=ghToken.value.trim();
- if(!id||!token) return alert('Enter Gist ID and Token');
- status.innerText='Posting to GitHub Gist...';
- let res=await fetch(`https://api.github.com/gists/${id}`,{method:"PATCH",headers:{"Authorization":"token "+token,"Content-Type":"application/json"},body:JSON.stringify({files:{"products.json":{content:JSON.stringify(products,null,2)}}})});
- status.innerText=res.ok?'✅ GitHub Gist updated forever same link':'❌ GitHub fail '+res.status;
+  let res=await fetch(BIN,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(data)});
+  s.innerText="✅ SUCCESS "+res.status+" - Refresh main site, no hard reload needed!";
+  btn.innerText="POST NOW";
+ }catch(e){s.innerText="❌ "+e; btn.innerText="POST NOW";}
 }
 </script>
 </body></html>
