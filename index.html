@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>My Gallery</title>
+<link rel="icon" type="image/png" href="https://i.postimg.cc/PxJsx18N/miles-morales-5120x2880-24345.png">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:system-ui}
+body{background:#0f1115;color:#fff}
+header{padding:16px 24px;background:#171a21;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
+header a{color:#4f7cff;text-decoration:none;font-weight:600}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;padding:20px;max-width:1100px;margin:auto;min-height:60vh}
+.card{background:#1c202a;border-radius:12px;overflow:hidden;border:1px solid #232836}
+.card img{width:100%;height:220px;object-fit:cover;display:block;background:#111}
+.card .meta{padding:10px 12px}
+.card b{font-size:14px;color:#fff}
+.card p{font-size:12px;color:#9ca3af;margin-top:2px}
+.wa{display:flex;align-items:center;justify-content:center;gap:6px;background:#25D366;color:#fff;text-decoration:none;padding:10px;font-size:13px;font-weight:700}
+.footer{background:#171a21;border-top:1px solid #222;padding:30px 24px;margin-top:40px;color:#cbd5e1}
+.footer-grid{max-width:1100px;margin:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:24px}
+.footer h4{color:#fff;margin-bottom:12px;font-size:15px}
+.footer p,.footer a{font-size:14px;line-height:1.6;color:#9ca3af;text-decoration:none}
+.footer-bottom{text-align:center;margin-top:24px;padding-top:16px;border-top:1px solid #222;font-size:12px;color:#666}
+.wa-footer-btn{display:inline-block;margin-top:10px;background:#25D366;color:#fff!important;padding:8px 16px;border-radius:20px;font-weight:600;text-decoration:none}
+</style>
+</head>
+<body>
+<header><h2>✨ My Gallery</h2><a href='admin.html'>Admin</a></header>
+<div id="gallery" class="grid">Loading...</div>
+<footer class="footer"><div class="footer-grid"><div><h4>My Gallery</h4><p>Best collection with direct WhatsApp inquiry.</p><a class="wa-footer-btn" href="https://wa.me/918319523594?text=Hi" target="_blank">💬 Chat</a></div><div><h4>Contact</h4><p>📞 +91 8319523594<br>📍 Raghogarh, MP 473287</p></div><div><h4>Quick Links</h4><p><a href='index.html'>Home</a></p><p><a href='admin.html'>Admin Login</a></p></div><div><h4>Follow</h4><p><a href="https://instagram.com/jagruk_aadmi" target="_blank">Instagram @jagruk_aadmi</a></p></div></div><div class="footer-bottom">© 2026 My Gallery</div></footer>
+<script>
+const BIN_URL="https://api.npoint.io/6161fabf116efcde0e19";
+const WA_NUMBER="918319523594";
+async function load(){
+ try{
+  const res=await fetch(BIN_URL + "?t=" + Date.now(), {cache:"no-store"});
+  const items=await res.json();
+  const el=document.getElementById('gallery');
+  if(!items||!items.length){el.innerHTML='<p style="grid-column:1/-1;color:#888;padding:20px;text-align:center">No products yet. Add from Admin.</p>';return;}
+  el.innerHTML=items.map(i=>{
+   const text=encodeURIComponent(`Hi, I want this product:\n\nName: ${i.name}\nCode: ${i.code}\nPrice: ${i.price}\nDesc: ${i.desc}\n\nImage: ${i.img}`);
+   const link=`https://wa.me/${WA_NUMBER}?text=${text}`;
+   return `<div class="card"><a href="${link}" target="_blank"><img src="${i.img}" loading="lazy"></a><div class="meta"><b>${i.name}</b> <span style="color:#666">(${i.code})</span><br><span style="color:#4f7cff;font-weight:600">₹${i.price}</span><p>${i.desc||''}</p></div><a class="wa" href="${link}" target="_blank">💬 WhatsApp: ${i.code}</a></div>`;
+  }).join('');
+ }catch(e){document.getElementById('gallery').innerHTML='<p>Load failed</p>'}
+}
+load();
+</script>
+</body>
+</html>
